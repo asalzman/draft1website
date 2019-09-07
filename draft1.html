@@ -1,0 +1,93 @@
+<DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<script>
+	var counter = 1;
+	var numPages;
+	function runAPI(x){
+		
+		x.preventDefault();
+		var xmlhttp = new XMLHttpRequest();
+		var url = "https://disinformation-api.dpccdn.net/v1/search?query=" + document.getElementById("search").value;
+
+		xmlhttp.onreadystatechange = function() {
+    		if (this.readyState == 4 && this.status == 200) {
+        		var myArr = JSON.parse(this.responseText);
+       		 	myFunction(myArr);}
+       		 }
+
+  			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+
+
+		function myFunction(arr) {
+		    var out = "";
+
+		    for(var i = 0; i < Object.keys(arr.results).length; i++) {
+		        out += arr.results[i].text + '<br><br>';
+		    }
+
+    		document.getElementById("id01").innerHTML = out;
+    		numPages = arr.pages;
+    	}
+	}
+    function newPage(){
+    	var xmlhttp = new XMLHttpRequest();
+    	counter = counter + 1;
+    	if (numPages > counter) {
+    		var url = "https://disinformation-api.dpccdn.net/v1/search?query=" + document.getElementById("search").value + "&page=" + counter;
+    	}
+    	xmlhttp.onreadystatechange = function() {
+    		if (this.readyState == 4 && this.status == 200) {
+        		var myArr = JSON.parse(this.responseText);
+       		 	myFunction(myArr);}
+       		 }
+
+  			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+
+		function myFunction(arr) {
+
+		    var out = "";
+
+		    for(var i = 0; i < Object.keys(arr.results).length; i++) {
+		        out += arr.results[i].text + '<br><br>';
+		    }
+
+    		document.getElementById("id01").innerHTML += out;
+    	}
+    }
+    function checkScroll(){
+    	var scrollTop = document.body.scrollTop;
+		var windowHeight = window.innerHeight;
+		var body = document.body;
+    	html = document.documentElement;
+		var height = Math.max( body.scrollHeight, body.offsetHeight, 
+        html.clientHeight, html.scrollHeight, html.offsetHeight );
+		var bodyHeight = height - windowHeight;
+		var scrollPercentage = Math.floor((scrollTop / bodyHeight)*10);
+		if(scrollPercentage > 9) {
+			  newPage();
+		}
+    }
+
+    window.addEventListener("scroll", function() {
+    checkScroll(); }, false);
+</script>
+<style>
+body
+{
+	height:auto; overflow:auto;
+}
+</style>
+</head>
+<body>
+	<form>
+		Enter Search Term:<br>
+		<input type="text" id="search"><br>
+		<button onclick="runAPI(event)">Submit</button>
+	</form>
+<div id="id01" class="results"></div>
+</body>
+</html>
